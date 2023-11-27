@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcher </title>
+    <style>
+        body {
+            display: flex;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        #container {
+            text-align: center;
+            margin-right: auto;
+
+        }
+
+        #upperDiv {
+            padding: 10px;
+            border: 2px solid black;
+        }
+
+        .lowerDiv {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid black;
+            margin: 0 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .nameDiv {
+            width: 150px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+</head>
+
+<body>
+    <div id="container">
+        <h1>Sanal Makine Durumu</h1>
+        <div id="upperDiv">
+            <div>Kundenportal</div>
+        </div>
+        <div class="lowerDiv dockerDiv">
+            <div class="nameDiv">Docker</div>
+            <div id="dockerStatus" class="circle"></div>
+            <div id="vmStatus" class="circle"></div>
+        </div>
+        <div class="lowerDiv letsEncryptDiv">
+            <div class="nameDiv">Let's Encrypt</div>
+            <div id="letsEncryptStatus" class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="lowerDiv memoryDiv">
+            <div class="nameDiv">Memory</div>
+            <div id="memoryStatus" class="circle"></div>
+            <div class="circle"></div>
+        </div>
+
+
+    </div>
+
+    <script>
+        // Status güncellemelerini dinamik olarak yap
+        function updateStatus() {
+            axios.get('http://localhost:5145/api/watcher/status')
+                .then(response => {
+                    isRunning = response.data.isRunning;
+                    updateVMStatus(isRunning);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
+            // Docker, Let's Encrypt ve Memory durumlarına benzer şekilde güncelleme yapılabilir.
+        }
+
+        // Sanal Makine Durumu
+        function updateVMStatus(isRunning)
+        {
+            const vmStatusElement = document.getElementById('vmStatus');
+            vmStatusElement.style.background = isRunning ? 'green' : 'red';
+
+            // "Kundenportal" durumunu güncelle
+            const kundenportalElement = document.getElementById('upperDiv');
+            kundenportalElement.style.background = isRunning ? 'green' : 'red';
+        }
+    
+
+        // Docker Durumu
+        function updateDockerStatus(isDockerRunning)
+        {
+            const dockerStatusElement = document.getElementById('dockerStatus');
+            dockerStatusElement.style.backgroundColor = isDockerRunning ? 'green' : 'red';
+        }
+
+        // Let's Encrypt Durumu
+        function updateLetsEncryptStatus(isRunning)
+        {
+            const letsEncryptStatusElement = document.getElementById('letsEncryptStatus');
+            letsEncryptStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
+        }
+
+        // Memory Durumu
+        function updateMemoryStatus(isRunning)
+        {
+            const memoryStatusElement = document.getElementById('memoryStatus');
+            memoryStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
+        }
+
+        // Belirli bir sürede bir güncelleme yap
+        setInterval(() => {
+            updateStatus();
+        }, 5000);
+    </script>
+</body>
+
+</html>
