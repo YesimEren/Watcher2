@@ -12,8 +12,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{75
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ToDoList", "ToDoList", "{C5673D8B-6A8C-4D60-8D0C-725212D90BC2}"
+	ProjectSection(SolutionItems) = preProject
+		TextFile1.txt = TextFile1.txt
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watcher.WebApi", "ApiConsume\Watcher.WebApi\Watcher.WebApi.csproj", "{595E812F-7F8C-493B-A1B0-52063B340512}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WatcherBusinessLayer", "ApiConsume\WatcherBusinessLayer\WatcherBusinessLayer.csproj", "{6E155583-2B73-43FB-BE82-2CA04A6CFCB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,12 +30,17 @@ Global
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E155583-2B73-43FB-BE82-2CA04A6CFCB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E155583-2B73-43FB-BE82-2CA04A6CFCB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E155583-2B73-43FB-BE82-2CA04A6CFCB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E155583-2B73-43FB-BE82-2CA04A6CFCB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{595E812F-7F8C-493B-A1B0-52063B340512} = {181C5390-788F-43E8-BD7A-7F9969F5F473}
+		{6E155583-2B73-43FB-BE82-2CA04A6CFCB9} = {181C5390-788F-43E8-BD7A-7F9969F5F473}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABE3DDCF-1C2B-4748-BD2A-10A40D006681}

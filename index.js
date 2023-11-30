@@ -12,25 +12,46 @@ app.use(cors());
 
 let isVirtualMachineRunning = true;
 
-function updateStatus() {
-    axios.get('http://localhost:5145/api/virtualmachine/status')
+function updateStatus(isRunning) {
+    axios.get('http://localhost:5145/api/watcher/memory')
         .then(response => {
-            const isVirtualMachineRunning = response.data.isRunning; 
+            const isVMRunning = response.data.isRunning; //.IsRunning
             updateVMStatus(isVMRunning);
         })
         .catch(error => {
             console.error(error);
         });
-
     //Docker, Let's Encrypt ve Memory durumlarına benzer güncellemleri bueraya yapoılacak.
 }
 
+function logToFile(logMessage) {
+    const logFile = path.join(__dirname, 'log.txt');
+    fs.appendFileSync(logFile, `${new Date()} - ${logMessage}\n`);
+}
+//function updateMemoryStatus() {
+//    axios.get('http://localhost:5145/api/watcher/memory')
+//        .then(response => {
+//            const { total, used } = response.data;
+//            const memoryStatusElement = document.getElementById('memoryStatus');
+//            const memoryUsagePercentage = (used / total) * 100;
+
+//            memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
+//        })
+//        .catch(error => {
+//            console.error(error);
+//        });
+//}
 setInterval(() => {
     updateStatus();
-}, 5000);
+    if (isVirtualMachineRunning) {
+        logToFile('Virtual Machine is running.');
+    } else {
+        logToFile('Virtual Machine is stopped.');
+    }
+}, 10000); // Her 10 saniyede bir kontrol et
 
 app.get('/status', (req, res) => {
-    res.json({ IsRunning: isVirtualMachineRunning });
+    res.json({ isRunning: isVirtualMachineRunning });
 });
 
 app.get('/', (req, res) => {
@@ -41,19 +62,5 @@ app.listen(port, () => {
     console.log(`Frontend app listening at http://localhost:${port}`);
 });
 
-// Logları dosyaya kaydet
-function logToFile(logMessage) {
-    const logFile = path.join(__dirname, 'log.txt');
-    fs.appendFileSync(logFile, `${new Date()} - ${logMessage}\n`);
-}
 
-// Virtual Machine durumuna göre log kayıtları
-setInterval(() => {
-    updateStatus();
-    if (isVirtualMachineRunning) {
-        logToFile('Virtual Machine is running.');
-    } else {
-        logToFile('Virtual Machine is stopped.');
-    }
-}, 10000); // Her 10 saniyede bir kontrol et
 

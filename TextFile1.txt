@@ -1,0 +1,158 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watcher</title>
+    <style>
+        /* ... (önceki stil bilgileri) ... */
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <h1>Sanal Makine Durumu</h1>
+        <div id="upperDiv" onclick="startandstop()">
+            <div class="TextFont"><b>KUNDENPORTAL</b></div>
+        </div>
+        <div class="lowerDiv dockerDiv">
+            <div class="nameDiv"><b class="writefont">Docker</b></div>
+            <div id="dockerStatus" class="circle"></div>
+            <div id="vmStatus" class="circle"></div>
+        </div>
+        <div class="lowerDiv letsEncryptDiv">
+            <div class="nameDiv"><b>Let's Encrypt</b></div>
+            <div id="letsEncryptStatus" class="circle"></div>
+            <div class="circle"></div>
+        </div>
+        <div class="lowerDiv memoryDiv">
+            <div class="nameDiv"><b>Memory</b></div>
+            <div id="memoryStatus" class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateStatus() {
+            // ... (önceki JavaScript kodu)
+        }
+
+        function updateVMStatus(isRunning) {
+            const vmStatusElement = document.getElementById('vmStatus');
+            vmStatusElement.style.background = isRunning ? 'green' : 'red';
+
+            // "Kundenportal" durumunu güncelle
+            const kundenportalElement = document.getElementById('upperDiv');
+            kundenportalElement.style.background = isRunning ? 'green' : 'red';
+        }
+
+        function startandstop() {
+            // ... (önceki JavaScript kodu)
+        }
+
+        function updateDockerStatus(isDockerRunning) {
+            // ... (önceki JavaScript kodu)
+        }
+
+        function updateLetsEncryptStatus(isRunning) {
+            // ... (önceki JavaScript kodu)
+        }
+
+        function updateMemoryStatus() {
+            axios.get('http://localhost:5145/api/watcher/memory')
+                .then(response => {
+                    const { total, used } = response.data;
+                    const memoryStatusElement = document.getElementById('memoryStatus');
+                    const memoryUsagePercentage = (used / total) * 100;
+
+                    memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }
+
+        setInterval(() => {
+            updateStatus();
+            updateMemoryStatus();
+        }, 5000);
+    </script>
+</body>
+
+</html>
+
+
+const express = require('express');
+const axios = require('axios');
+const path = require('path');
+const fs = require('fs');
+const cors = require('cors');
+const app = express();
+const port = 3000;
+
+// Express middleware
+app.use(express.json());
+app.use(cors());
+
+let isVirtualMachineRunning = true;
+
+function updateStatus(isRunning) {
+    axios.get('http://localhost:5145/api/watcher/memory')
+        .then(response => {
+            const isVMRunning = response.data.isRunning; //.IsRunning
+            updateVMStatus(isVMRunning);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+    //Docker, Let's Encrypt ve Memory durumlarına benzer güncellemleri buraya yapılacak.
+}
+
+function updateMemoryStatus() {
+    axios.get('http://localhost:5145/api/watcher/memory')
+        .then(response => {
+            const { total, used } = response.data;
+            const memoryStatusElement = document.getElementById('memoryStatus');
+            const memoryUsagePercentage = (used / total) * 100;
+
+            memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
+        })
+        .catch(error => {
+            console.error(error);
+        });
+}
+
+setInterval(() => {
+    updateStatus();
+    updateMemoryStatus();
+}, 5000);
+
+app.get('/status', (req, res) => {
+    res.json({ IsRunning: isVirtualMachineRunning });
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.listen(port, () => {
+    console.log(`Frontend app listening at http://localhost:${port}`);
+});
+
+// Logları dosyaya kaydet
+function logToFile(logMessage) {
+    const logFile = path.join(__dirname, 'log.txt');
+    fs.appendFileSync(logFile, `${new Date()} - ${logMessage}\n`);
+}
+
+// Virtual Machine durumuna göre log kayıtları
+setInterval(() => {
+    updateStatus();
+    if (isVirtualMachineRunning) {
+        logToFile('Virtual Machine is running.');
+    } else {
+        logToFile('Virtual Machine is stopped.');
+    }
+}, 10000); // Her 10 saniyede bir kontrol et

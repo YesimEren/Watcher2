@@ -6,45 +6,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watcher </title>
     <style>
-        body {
+        body 
+        {
             display: flex;
             justify-content: flex-start;
             height: 100vh;
             margin: 0;
-            padding: 20px;
+            padding: 30px;
         }
 
-        #container {
+        #container 
+        {
             text-align: center;
-            margin-right: auto;
+            margin-right:auto;
 
         }
 
-        #upperDiv {
-            padding: 10px;
+        #upperDiv /*dikdörtgenin boyutu*/ {
+            padding: 50px;
             border: 2px solid black;
+            cursor: pointer; /*tıklanmayı sağlıyor.*/
         }
 
-        .lowerDiv {
+        .lowerDiv /*satırarasıboşluk*/
+        {
             display: flex;
             justify-content: center;
-            margin-top: 10px;
+            margin-top: 20px;
         }
 
-        .circle {
+        .circle 
+        {
             width: 20px;
             height: 20px;
             border-radius: 50%;
             border: 2px solid black;
-            margin: 0 5px;
+            margin: 0 3px;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .nameDiv {
-            width: 150px;
+        .nameDiv  /*dairelerin mesafesi*/
+        {
+            width: 270px;
         }
+
+        .TextFont
+        {
+            font-size: 2em;
+
+        }
+
+        .writefont
+        {
+            font-size: 1.25em;
+        }
+  
     </style>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -53,21 +71,21 @@
 <body>
     <div id="container">
         <h1>Sanal Makine Durumu</h1>
-        <div id="upperDiv">
-            <div>Kundenportal</div>
+        <div id="upperDiv" onclick="startandstop()">
+            <div class="TextFont"><b>KUNDENPORTAL</b></div>
         </div>
         <div class="lowerDiv dockerDiv">
-            <div class="nameDiv">Docker</div>
+            <div class="nameDiv"><b class="writefont">Docker</b></div>
             <div id="dockerStatus" class="circle"></div>
             <div id="vmStatus" class="circle"></div>
         </div>
         <div class="lowerDiv letsEncryptDiv">
-            <div class="nameDiv">Let's Encrypt</div>
+            <div class="nameDiv"><b>Let's Encrypt</b></div>
             <div id="letsEncryptStatus" class="circle"></div>
             <div class="circle"></div>
         </div>
         <div class="lowerDiv memoryDiv">
-            <div class="nameDiv">Memory</div>
+            <div class="nameDiv"><b>Memory</b></div>
             <div id="memoryStatus" class="circle"></div>
             <div class="circle"></div>
         </div>
@@ -76,20 +94,20 @@
     </div>
 
     <script>
-        // Status güncellemelerini dinamik olarak yap
+        let isRunning = false; // Sanal makinenin başlangıç durumu
+
         function updateStatus() {
             axios.get('http://localhost:5145/api/watcher/status')
                 .then(response => {
                     isRunning = response.data.isRunning;
                     updateVMStatus(isRunning);
+                    updateDockerStatus(isRunning);
                 })
                 .catch(error => {
                     console.error(error);
                 });
-
-            // Docker, Let's Encrypt ve Memory durumlarına benzer şekilde güncelleme yapılabilir.
+        // Docker, Let's Encrypt ve Memory durumlarına benzer şekilde güncelleme yapılabilir.
         }
-
         // Sanal Makine Durumu
         function updateVMStatus(isRunning)
         {
@@ -100,7 +118,33 @@
             const kundenportalElement = document.getElementById('upperDiv');
             kundenportalElement.style.background = isRunning ? 'green' : 'red';
         }
-    
+
+        // Sanal Makine Açma/Kapatma işlemi
+        function startandstop() {
+            if (isRunning) {
+                // Sanal makine açıksa, kapatma işlemi yap
+                axios.post('http://localhost:5145/api/watcher/stop')
+                    .then(response => {
+                        console.log(response.data.Message);
+                        isRunning = false; // Durumu güncelle
+                        updateStatus();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            } else {
+                // Sanal makine kapalıysa, açma işlemi yap
+                axios.post('http://localhost:5145/api/watcher/start')
+                    .then(response => {
+                        console.log(response.data.Message);
+                        isRunning = true; // Durumu güncelle
+                        updateStatus();
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+            }
+        }
 
         // Docker Durumu
         function updateDockerStatus(isDockerRunning)
@@ -116,18 +160,28 @@
             letsEncryptStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
         }
 
-        // Memory Durumu
-        function updateMemoryStatus(isRunning)
-        {
-            const memoryStatusElement = document.getElementById('memoryStatus');
-            memoryStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
+        // Memory Durumu Güncellemesi.
+        function updateMemoryStatus() {
+            axios.get('http://localhost:5145/api/watcher/memory')
+                .then(response => {
+                    const { total, used } = response.data;
+                    const memoryStatusElement = document.getElementById('memoryStatus');
+                    const memoryUsagePercentage = (used / total) * 100;
+
+                    memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         }
 
         // Belirli bir sürede bir güncelleme yap
         setInterval(() => {
             updateStatus();
+            updateMemoryStatus();
         }, 5000);
     </script>
 </body>
 
 </html>
+

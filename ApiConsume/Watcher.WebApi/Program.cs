@@ -1,4 +1,10 @@
+using Microsoft.OpenApi.Models;
+using WatcherBusinessLayer;
+using WatcherBusinessLayer.Contracts;
+
 var builder = WebApplication.CreateBuilder(args);
+
+
 
 // Add services to the container.
 
@@ -6,15 +12,18 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("WatcherApiCors", opts =>
     {
-        opts.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod(); //WithOrigins("http://localhost:5145")
+        opts.AllowAnyHeader().AllowAnyOrigin().AllowAnyMethod();
     });
 });
 
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddScoped<IWatcherService, WatcherService>();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddEndpointsApiExplorer();
+
+
 
 var app = builder.Build();
 
@@ -23,6 +32,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+   
 }
 
 app.UseCors("WatcherApiCors");
@@ -32,3 +42,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
