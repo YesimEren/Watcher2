@@ -156,8 +156,6 @@ namespace Watcher.WebApi.Controllers
         {
             // Bellek kullanımı eşiği aşılmıyorsa, yeşil ışığı aç
             const float greenThreshold = 80;
-            const float redThreshold = 100; // Hata durumunu temsil eden %100 kullanım
-
             const string greenColor = "green";
             const string redColor = "red";
 
@@ -175,6 +173,12 @@ namespace Watcher.WebApi.Controllers
             // JavaScript ile tarayıcıdaki ışığı güncelle
             string updateStatusScript = vmStatusScript + kundenportalScript;
             Response.WriteAsync($"<script>{updateStatusScript}</script>");
+
+            // Response.HasStarted kontrolü ekleyerek yanıt başlamamışsa işlemi gerçekleştir
+            if (!Response.HasStarted)
+            {
+                Response.WriteAsync($"<script>{updateStatusScript}</script>");
+            }
         }
 
     }

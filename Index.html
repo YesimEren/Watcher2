@@ -123,7 +123,7 @@
         function startandstop() {
             if (isRunning) {
                 // Sanal makine açıksa, kapatma işlemi yap
-                axios.post('http://localhost:5145/api/watcher/stop')
+                axios.post('http://localhost:5145/api/Watcher/stop')
                     .then(response => {
                         console.log(response.data.Message);
                         isRunning = false; // Durumu güncelle
@@ -134,7 +134,7 @@
                     });
             } else {
                 // Sanal makine kapalıysa, açma işlemi yap
-                axios.post('http://localhost:5145/api/watcher/start')
+                axios.post('http://localhost:5145/api/Watcher/start')
                     .then(response => {
                         console.log(response.data.Message);
                         isRunning = true; // Durumu güncelle
@@ -162,11 +162,11 @@
 
         // Memory Durumu Güncellemesi.
         function updateMemoryStatus() {
-            axios.get('http://localhost:5145/api/watcher/memory')
+            axios.get('http://localhost:5145/api/Watcher/memory')
                 .then(response => {
-                    const { total, used } = response.data;
+                    const { total, used, usagePercentage } = response.data;
                     const memoryStatusElement = document.getElementById('memoryStatus');
-                    const memoryUsagePercentage = (used / total) * 100;
+                    const memoryUsagePercentage = parseFloat(usagePercentage);
 
                     memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
                 })
@@ -174,7 +174,6 @@
                     console.error(error);
                 });
         }
-
         // Belirli bir sürede bir güncelleme yap
         setInterval(() => {
             updateStatus();

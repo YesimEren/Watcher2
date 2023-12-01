@@ -8,7 +8,11 @@ const port = 3000;
 
 // Express middleware
 app.use(express.json());
-app.use(cors());
+app.use(corscors({
+    origin: 'http://localhost:3000',  // İzin verilen kaynak (frontend uygulamasının adresi)
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+}));
 
 let isVirtualMachineRunning = true;
 
@@ -28,19 +32,7 @@ function logToFile(logMessage) {
     const logFile = path.join(__dirname, 'log.txt');
     fs.appendFileSync(logFile, `${new Date()} - ${logMessage}\n`);
 }
-//function updateMemoryStatus() {
-//    axios.get('http://localhost:5145/api/watcher/memory')
-//        .then(response => {
-//            const { total, used } = response.data;
-//            const memoryStatusElement = document.getElementById('memoryStatus');
-//            const memoryUsagePercentage = (used / total) * 100;
 
-//            memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
-//        })
-//        .catch(error => {
-//            console.error(error);
-//        });
-//}
 setInterval(() => {
     updateStatus();
     if (isVirtualMachineRunning) {

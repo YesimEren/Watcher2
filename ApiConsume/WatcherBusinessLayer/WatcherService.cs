@@ -9,17 +9,27 @@ namespace WatcherBusinessLayer
     {
         public (int total, int used) GetMemoryInfoFromVirtualMachine()
         {
-            string sanalMakinaAdi = "yesubuntu";
+            string sanalmakinadi = "yesubuntu";
             string komut = "free -m";
-            string output = VBoxManageGuestControlCommand(sanalMakinaAdi, komut);
+            string output = VBoxManageGuestControlCommand(sanalmakinadi, komut);
 
             string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-            string[] values = lines[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (lines.Length >= 2)
+            {
+                string[] values = lines[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                if (values.Length >= 3)
+                {
+                    int total = int.Parse(values[1]);
+                    int used = int.Parse(values[2]);
 
-            int total = int.Parse(values[1]);
-            int used = int.Parse(values[2]);
+                    return (total, used);
+                }
+                
 
-            return (total, used);
+            }
+            return (0, 0);
+
+
         }
 
         private string VBoxManageGuestControlCommand(string vmName, string command)
@@ -36,5 +46,7 @@ namespace WatcherBusinessLayer
             process.WaitForExit();
             return output;
         }
+
+
     }
 }
