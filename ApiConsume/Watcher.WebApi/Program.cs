@@ -1,7 +1,4 @@
 using Microsoft.OpenApi.Models;
-using WatcherBusinessLayer;
-using WatcherBusinessLayer.Contracts;
-
 var builder = WebApplication.CreateBuilder(args);
 
 
@@ -17,7 +14,6 @@ builder.Services.AddCors(opt =>
 });
 
 builder.Services.AddControllers();
-builder.Services.AddScoped<IWatcherService, WatcherService>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

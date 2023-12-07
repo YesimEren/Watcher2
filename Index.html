@@ -35,8 +35,7 @@
             margin-top: 20px;
         }
 
-        .circle 
-        {
+        .circle {
             width: 20px;
             height: 20px;
             border-radius: 50%;
@@ -46,6 +45,7 @@
             justify-content: center;
             align-items: center;
         }
+        
 
         .nameDiv  /*dairelerin mesafesi*/
         {
@@ -86,8 +86,11 @@
         </div>
         <div class="lowerDiv memoryDiv">
             <div class="nameDiv"><b>Memory</b></div>
-            <div id="memoryStatus" class="circle"></div>
-            <div class="circle"></div>
+            <div></div>
+            <div class="circle" id="memoryCircle"></div>
+            <p id="usagePercentage"></p>
+            <!--<div id="memoryStatus" class="circle"></div>
+    <div class="circle"></div>-->
         </div>
 
 
@@ -146,6 +149,24 @@
             }
         }
 
+        // Memory Durumu Güncellemesi.
+        function updateMemoryUsage() {
+            fetch('/api/memory')
+                .then(response => response.json())
+                .then(data => {
+                    const usagePercentage = data.UsagePercentage.toFixed(2);
+                    document.getElementById('usagePercentage').innerText = `Memory Usage: ${usagePercentage}%`;
+
+                    const memoryCircle = document.getElementById('memoryCircle');
+                    if (data.UsagePercentage > 80) {
+                        memoryCircle.style.backgroundColor = '#FF6347'; // Kırmızı ışık
+                    } else {
+                        memoryCircle.style.backgroundColor = '#4CAF50'; // Yeşil ışık
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        }
+
         // Docker Durumu
         function updateDockerStatus(isDockerRunning)
         {
@@ -160,24 +181,44 @@
             letsEncryptStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
         }
 
-        // Memory Durumu Güncellemesi.
-        function updateMemoryStatus() {
-            axios.get('http://localhost:5145/api/Watcher/memory')
-                .then(response => {
-                    const { total, used, usagePercentage } = response.data;
-                    const memoryStatusElement = document.getElementById('memoryStatus');
-                    const memoryUsagePercentage = parseFloat(usagePercentage);
+        document.addEventListener('DOMContentLoaded', function () {
+            updateMemoryUsage();
 
-                    memoryStatusElement.style.backgroundColor = memoryUsagePercentage > 80 ? 'red' : 'green';
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-        }
+            setInterval(function () {
+                updateMemoryUsage();
+            }, 5000); // 5 saniyede bir güncelle
+
+            function updateMemoryUsage() {
+                axios.get('https://localhost:44358/api/Memory')
+                    .then(response => {
+                        const usagePercentage = parseFloat(response.data.usagePercentage);
+
+                        console.log('Usage Percentage:', usagePercentage); // Debug için konsol log'u
+
+                        document.getElementById('usagePercentage').innerText = `${usagePercentage.toFixed(0)}%`;
+
+                        const memoryCircle = document.getElementById('memoryCircle');
+                        const threshold = 80;
+
+                        // Renk değerlerini dinamik olarak belirle
+                        const color = getColorBasedOnThreshold(usagePercentage, threshold);
+                        console.log('Color:', color); // Debug için konsol log'u
+                        memoryCircle.style.backgroundColor = color;
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Belirli bir eşik değerine göre renk döndüren yardımcı fonksiyon
+            function getColorBasedOnThreshold(value, threshold) {
+                return value > threshold ? '#FF6347' : '#4CAF50';
+            }
+        });
+
+        
         // Belirli bir sürede bir güncelleme yap
         setInterval(() => {
             updateStatus();
-            updateMemoryStatus();
+           // updateMemoryStatus();
         }, 5000);
     </script>
 </body>

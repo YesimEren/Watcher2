@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
-using WatcherBusinessLayer.Contracts;
+
 
 namespace Watcher.WebApi.Controllers
 {
@@ -9,12 +9,6 @@ namespace Watcher.WebApi.Controllers
     [ApiController]
     public class WatcherController : ControllerBase
     {
-        private readonly IWatcherService _watcherService;
-
-        public WatcherController(IWatcherService watcherService)
-        {
-            _watcherService = watcherService;
-        }
         private bool SanalMakina() //IsVirtualMachineRunning
         {
             string sanalmakinadi = "yesubuntu";
@@ -45,40 +39,6 @@ namespace Watcher.WebApi.Controllers
             {
                 writer.WriteLine($"{DateTime.Now} - {logMessage}");
             }
-        }
-
-        private (int total, int used) GetMemoryInfoFromVirtualMachine()
-        {
-            string sanalMakinaAdi = "yesubuntu";
-            string komut = "free -m";
-            string output = VBoxManageGuestControlCommand(sanalMakinaAdi, komut);
-
-            // Çıktıyı analiz etmek ve total, used değerlerini çıkarmak için gerekli kod buraya eklenecek
-
-            // Örnek: 
-            // total       used
-            // 7937        252
-            string[] lines = output.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-            string[] values = lines[1].Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            int total = int.Parse(values[1]);
-            int used = int.Parse(values[2]);
-
-            return (total, used);
-        }
-
-        private string VBoxManageGuestControlCommand(string vmName, string command)
-        {
-            Process process = new Process();
-            process.StartInfo.FileName = "VBoxManage";
-            process.StartInfo.Arguments = $"guestcontrol {vmName} run --exe /bin/bash --ysert --yesimsert --wait-stdout -- {command}";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-            return output;
         }
 
         [HttpGet("status")]
@@ -129,57 +89,68 @@ namespace Watcher.WebApi.Controllers
         }
 
         [HttpGet("memory")]
-        public IActionResult GetMemoryUsage()
+        public ActionResult<string> GetMemoryUsage()
         {
-            try
+            var processStartInfo = new ProcessStartInfo
             {
-                var (total, used) = GetMemoryInfoFromVirtualMachine();
-                float memoryUsagePercentage = (float)used / total * 100;
+                FileName = "VBoxManage",
+                Arguments = $"guestcontrol yesubuntu run --exe /usr/bin/free --username ysert --password yesimsert --wait-stdout -- -m",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-                // Bellek kullanımı eşiği aşılmıyorsa, yeşil ışığı aç
-                UpdateMemoryStatus(memoryUsagePercentage);
-
-                return Ok(new { Total = total, Used = used, UsagePercentage = memoryUsagePercentage });
-            }
-            catch (Exception ex)
+            using (var process = new Process { StartInfo = processStartInfo })
             {
-                LogToFile($"Error in GetMemoryUsage: {ex.Message}");
+                process.Start();
+                string output = process.StandardOutput.ReadToEnd();
+                process.WaitForExit();
 
-                // Hata durumunda kırmızı ışığı aç
-                UpdateMemoryStatus(100); // Hata durumunu temsil eden %100 kullanım
+                double totalMemory = ParseTotalMemory(output);
+                double usedMemory = ParseUsedMemory(output);
+                double usagePercentage = (usedMemory / totalMemory) * 100;
 
-                return StatusCode(500, new { Message = "An error occurred while getting memory usage." });
+                // Eşik değeri kontrolü yap
+                string status = "Green";
+                if (usagePercentage >= 80)
+                {
+                    status = "Red";
+                }
+
+
+                return Ok(new
+                {
+                    UsedMemory = usedMemory,
+                    TotalMemory = totalMemory,
+                    UsagePercentage = usagePercentage,
+                    Status = status
+                });
             }
         }
 
-        private void UpdateMemoryStatus(float memoryUsagePercentage)
+        private static double ParseUsedMemory(string output)
         {
-            // Bellek kullanımı eşiği aşılmıyorsa, yeşil ışığı aç
-            const float greenThreshold = 80;
-            const string greenColor = "green";
-            const string redColor = "red";
+            string[] lines = output.Split('\n');
+            string usedMemoryLine = lines[1];
 
-            // Işığın rengini belirle
-            string color = memoryUsagePercentage > greenThreshold ? redColor : greenColor;
+            string[] values = usedMemoryLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            double usedMemory = double.Parse(values[2]);
 
-            // Işığın rengini güncelle
-            const string vmStatusElementId = "vmStatus";
-            const string kundenportalElementId = "upperDiv";
-
-            const string scriptFormat = "document.getElementById('{0}').style.backgroundColor = '{1}';";
-            string vmStatusScript = string.Format(scriptFormat, vmStatusElementId, color);
-            string kundenportalScript = string.Format(scriptFormat, kundenportalElementId, color);
-
-            // JavaScript ile tarayıcıdaki ışığı güncelle
-            string updateStatusScript = vmStatusScript + kundenportalScript;
-            Response.WriteAsync($"<script>{updateStatusScript}</script>");
-
-            // Response.HasStarted kontrolü ekleyerek yanıt başlamamışsa işlemi gerçekleştir
-            if (!Response.HasStarted)
-            {
-                Response.WriteAsync($"<script>{updateStatusScript}</script>");
-            }
+            return usedMemory;
         }
 
+        private static double ParseTotalMemory(string output)
+        {
+            string[] lines = output.Split('\n');
+            string totalMemoryLine = lines[1];
+
+            string[] values = totalMemoryLine.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            double totalMemory = double.Parse(values[1]);
+
+            return totalMemory;
+        }
     }
+
+
+
 }
