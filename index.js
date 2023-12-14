@@ -44,7 +44,7 @@ app.get('/api/memory', (req, res) => {
     });
 });
 
-// Sunucuyu ba?lat
+// Sunucuyu başlat
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
@@ -101,4 +101,3 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`Frontend app listening at http://localhost:${port}`);
 });
-

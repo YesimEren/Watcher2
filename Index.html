@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Watcher </title>
     <style>
-        body 
-        {
+        body {
             display: flex;
             justify-content: flex-start;
             height: 100vh;
@@ -15,11 +14,9 @@
             padding: 30px;
         }
 
-        #container 
-        {
+        #container {
             text-align: center;
-            margin-right:auto;
-
+            margin-right: auto;
         }
 
         #upperDiv /*dikdörtgenin boyutu*/ {
@@ -28,8 +25,7 @@
             cursor: pointer; /*tıklanmayı sağlıyor.*/
         }
 
-        .lowerDiv /*satırarasıboşluk*/
-        {
+        .lowerDiv /*satırarasıboşluk*/ {
             display: flex;
             justify-content: center;
             margin-top: 20px;
@@ -45,24 +41,19 @@
             justify-content: center;
             align-items: center;
         }
-        
 
-        .nameDiv  /*dairelerin mesafesi*/
-        {
+
+        .nameDiv /*dairelerin mesafesi*/ {
             width: 270px;
         }
 
-        .TextFont
-        {
+        .TextFont {
             font-size: 2em;
-
         }
 
-        .writefont
-        {
+        .writefont {
             font-size: 1.25em;
         }
-  
     </style>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
@@ -70,7 +61,7 @@
 
 <body>
     <div id="container">
-        <h1>Sanal Makine Durumu</h1>
+        <h1>Virtual Machine Status</h1>
         <div id="upperDiv" onclick="startandstop()">
             <div class="TextFont"><b>KUNDENPORTAL</b></div>
         </div>
@@ -79,18 +70,16 @@
             <div id="dockerStatus" class="circle"></div>
             <div id="vmStatus" class="circle"></div>
         </div>
-        <div class="lowerDiv letsEncryptDiv">
+        <!--<div class="lowerDiv letsEncryptDiv">
             <div class="nameDiv"><b>Let's Encrypt</b></div>
             <div id="letsEncryptStatus" class="circle"></div>
             <div class="circle"></div>
-        </div>
+        </div>-->
         <div class="lowerDiv memoryDiv">
-            <div class="nameDiv"><b>Memory</b></div>
-            <div></div>
+            <div class="nameDiv"><b>Memory</b> <p id="usagePercentage">Percentage:</p></div>
+            <!--<p id="usagePercentage"></p>-->
+            <div id="vmStatusCircle" class="circle"></div>
             <div class="circle" id="memoryCircle"></div>
-            <p id="usagePercentage"></p>
-            <!--<div id="memoryStatus" class="circle"></div>
-    <div class="circle"></div>-->
         </div>
 
 
@@ -109,11 +98,10 @@
                 .catch(error => {
                     console.error(error);
                 });
-        // Docker, Let's Encrypt ve Memory durumlarına benzer şekilde güncelleme yapılabilir.
+            // Docker, Let's Encrypt ve Memory durumlarına benzer şekilde güncelleme yapılabilir.
         }
         // Sanal Makine Durumu
-        function updateVMStatus(isRunning)
-        {
+        function updateVMStatus(isRunning) {
             const vmStatusElement = document.getElementById('vmStatus');
             vmStatusElement.style.background = isRunning ? 'green' : 'red';
 
@@ -168,18 +156,16 @@
         }
 
         // Docker Durumu
-        function updateDockerStatus(isDockerRunning)
-        {
+        function updateDockerStatus(isDockerRunning) {
             const dockerStatusElement = document.getElementById('dockerStatus');
             dockerStatusElement.style.backgroundColor = isDockerRunning ? 'green' : 'red';
         }
 
-        // Let's Encrypt Durumu
-        function updateLetsEncryptStatus(isRunning)
-        {
-            const letsEncryptStatusElement = document.getElementById('letsEncryptStatus');
-            letsEncryptStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
-        }
+        //// Let's Encrypt Durumu
+        //function updateLetsEncryptStatus(isRunning) {
+        //    const letsEncryptStatusElement = document.getElementById('letsEncryptStatus');
+        //    letsEncryptStatusElement.style.backgroundColor = isRunning ? 'green' : 'red';
+        //}
 
         document.addEventListener('DOMContentLoaded', function () {
             updateMemoryUsage();
@@ -189,7 +175,7 @@
             }, 5000); // 5 saniyede bir güncelle
 
             function updateMemoryUsage() {
-                axios.get('https://localhost:44358/api/Memory')
+                axios.get('http://localhost:5145/api/Watcher/memory')
                     .then(response => {
                         const usagePercentage = parseFloat(response.data.usagePercentage);
 
@@ -214,14 +200,13 @@
             }
         });
 
-        
+
         // Belirli bir sürede bir güncelleme yap
         setInterval(() => {
             updateStatus();
-           // updateMemoryStatus();
+           updateMemoryStatus();
         }, 5000);
     </script>
 </body>
 
 </html>
-
