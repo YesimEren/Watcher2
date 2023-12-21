@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ToDoList", "ToDoList", "{C5
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Watcher.WebApi", "ApiConsume\Watcher.WebApi\Watcher.WebApi.csproj", "{595E812F-7F8C-493B-A1B0-52063B340512}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatcherLogin", "Frontend\WatcherLogin\WatcherLogin.csproj", "{D4176CF1-F228-445F-830D-F16C2CC6FA27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -28,12 +30,17 @@ Global
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{595E812F-7F8C-493B-A1B0-52063B340512}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4176CF1-F228-445F-830D-F16C2CC6FA27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4176CF1-F228-445F-830D-F16C2CC6FA27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4176CF1-F228-445F-830D-F16C2CC6FA27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4176CF1-F228-445F-830D-F16C2CC6FA27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{595E812F-7F8C-493B-A1B0-52063B340512} = {181C5390-788F-43E8-BD7A-7F9969F5F473}
+		{D4176CF1-F228-445F-830D-F16C2CC6FA27} = {751AB7C1-2070-4E92-9F1D-439983B9AE5B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ABE3DDCF-1C2B-4748-BD2A-10A40D006681}
