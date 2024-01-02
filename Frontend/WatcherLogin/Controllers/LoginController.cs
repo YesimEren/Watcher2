@@ -24,7 +24,7 @@ namespace WatcherLogin.Controllers
             var values = _context.Admins.FirstOrDefault(x => x.Username == username && x.Password == password);
             if (values == null)
             {
-                return RedirectToAction("Index", "http://localhost:5145/api/Watcher/status");
+                return RedirectToAction("Index", "Home");
 
             }
             else
